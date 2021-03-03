@@ -11,8 +11,6 @@ int main() {
       struct sockaddr_in client_addr;
       int client_len = sizeof(client_addr);
       int conn_fd = accept_or_die(listen_fd, (sockaddr_t *) &client_addr, (socklen_t *) &client_len);
-      char buf[1024];
-      readline_or_die(conn_fd, buf, 1024);
-      std::cout << std::string(buf) << std::endl;
+		pool.insert_conn(conn_fd);
    }
 }
