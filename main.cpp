@@ -1,4 +1,5 @@
 #include "thread_pool.h"
+#include "conn_buffer.h"
 extern "C" {
    #include "io_helper.h"
 }
@@ -11,6 +12,6 @@ int main() {
       struct sockaddr_in client_addr;
       int client_len = sizeof(client_addr);
       int conn_fd = accept_or_die(listen_fd, (sockaddr_t *) &client_addr, (socklen_t *) &client_len);
-		pool.insert_conn(conn_fd);
+		pool.submit_conn(conn_fd);
    }
 }
