@@ -1,7 +1,7 @@
-#include "thread_pool.h"
-#include "conn_buffer.h"
+#include "prethreaded/prethreaded_server.h"
+#include "prethreaded/conn_buffer.h"
 extern "C" {
-   #include "io_helper.h"
+   #include "common/io_helper.h"
 }
 #include <iostream>
 

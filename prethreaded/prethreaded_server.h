@@ -6,7 +6,7 @@
 #include <condition_variable>
 #include <iostream>
 
-#include "conn_buffer.h"
+#include "prethreaded/conn_buffer.h"
 
 class ThreadPool {
 public:

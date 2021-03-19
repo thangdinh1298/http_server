@@ -4,9 +4,9 @@
 #include <sstream>
 #include <fstream>
 
-#include "thread_pool.h"
+#include "prethreaded_server.h"
 extern "C" {
-#include "io_helper.h"
+#include "common/io_helper.h"
 }
 
 const size_t REQUEST_LINE_LENGTH = 1024;
@@ -23,16 +23,6 @@ ThreadPool::ThreadPool(unsigned thread_num, unsigned connection_buffer_len):
             while (true) {
                auto conn = conn_buffer_.get_conn();
 					handle_conn(conn);
-                
-              // //Write response
-              // sprintf(buf, ""
-              //     "HTTP/1.0 200 OK\r\n"
-              //     "Server: My WebServer\r\n"
-              //     "Content-Length: %d\r\n"
-              //     "Content-Type: %s\r\n\r\n",
-              //     strlen(response), "text");
-              // write_or_die (conn, buf, strlen(buf));
-              // write_or_die (conn, response, strlen(response));
             }
       });
       thread_buffer_.push_back(std::move(t));
