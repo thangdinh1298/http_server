@@ -4,7 +4,6 @@
 #include <mutex>
 #include <condition_variable>
 
-typedef int conn_t;
 class ConnectionBuffer {
 private:
    unsigned int max_connection_buffer_len_;
@@ -19,7 +18,7 @@ public:
    ConnectionBuffer(unsigned int len) : max_connection_buffer_len_(len) {
 
    }
-   conn_t get_conn() {
+   int get_conn() {
       std::unique_lock<std::mutex> lk(mu_);
       while (connection_buffer_.empty()) {
          cv_.wait(lk);
@@ -29,7 +28,7 @@ public:
       return conn;
    }
 
-   void push_conn(conn_t conn) {
+   void push_conn(int conn) {
       std::unique_lock<std::mutex> lk(mu_);
       while (is_full()) {
          cv_.wait(lk);

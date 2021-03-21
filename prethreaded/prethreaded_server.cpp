@@ -5,6 +5,7 @@
 #include <fstream>
 
 #include "prethreaded_server.h"
+#include "common/request.h"
 extern "C" {
 #include "common/io_helper.h"
 }
@@ -16,7 +17,7 @@ void handle_conn(int conn);
 void request_error(int conn, int code, const char* msg);
 void serve_static_file(int conn, std::string filename);
 
-ThreadPool::ThreadPool(unsigned thread_num, unsigned connection_buffer_len): 
+PrethreadedServer::PrethreadedServer(unsigned thread_num, unsigned connection_buffer_len): 
                        conn_buffer_(connection_buffer_len) {
    for (unsigned int i = 0; i < thread_num; i++) {
       std::thread t([this]() {
@@ -30,20 +31,7 @@ ThreadPool::ThreadPool(unsigned thread_num, unsigned connection_buffer_len):
 }
                        
 void handle_conn(int conn) {
-	char buf[REQUEST_LINE_LENGTH]; //On the stack?
-	readline_or_die(conn, buf, REQUEST_LINE_LENGTH);
-	std::string request_line(buf);
-	std::stringstream ss (request_line);
-	std::string method, uri, version;
-	ss >> method >> uri >> version;
-	std::cout << uri << std::endl;
-
-	if (method != "GET") { //TODO: Insensitive case comparison
-		request_error(conn, 501, "Request type not implemented");
-	}
-	
-	std::string filename = (uri.size() == 1 && uri[0] == '/') ? "index.html" : uri.substr(1, uri.size() - 1);
-	serve_static_file(conn, filename);
+   HTTPRequest::make_request(conn);
 }
 
 void serve_static_file(int conn, std::string filename) {
