@@ -20,6 +20,15 @@ public:
    std::string to_string() const {
       return get_str_from_method(method_) + " " + uri_ + " " + version_;
    }
+   std::string uri() {
+      return uri_;
+   }
+   std::string version() {
+      return version_;
+   }
+   HTTPMethod method() {
+      return method_;
+   }
 
 private:
    HTTPMethod method_;

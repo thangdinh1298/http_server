@@ -5,7 +5,6 @@
 #include <fstream>
 
 #include "prethreaded_server.h"
-#include "common/request.h"
 extern "C" {
 #include "common/io_helper.h"
 }
@@ -17,23 +16,27 @@ void handle_conn(int conn);
 void request_error(int conn, int code, const char* msg);
 void serve_static_file(int conn, std::string filename);
 
+int func(const HTTPRequest& req) {
+   return 15;
+};
+
+void work(PrethreadedServer* server) {
+   auto conn = server->get_conn();
+   auto req = HTTPRequest::make_request(conn);
+   auto task = server->task();
+   auto resp = task(req);
+   std::cout << resp << std::endl;
+}
+
 PrethreadedServer::PrethreadedServer(unsigned thread_num, unsigned connection_buffer_len): 
                        conn_buffer_(connection_buffer_len) {
    for (unsigned int i = 0; i < thread_num; i++) {
-      std::thread t([this]() {
-            while (true) {
-               auto conn = conn_buffer_.get_conn();
-					handle_conn(conn);
-            }
-      });
+      std::thread t(work, this);
       thread_buffer_.push_back(std::move(t));
    }
+   task_ = &func;
 }
                        
-void handle_conn(int conn) {
-   HTTPRequest::make_request(conn);
-}
-
 void serve_static_file(int conn, std::string filename) {
 	char buf[MAXBUF];
 	std::fstream f(filename);
