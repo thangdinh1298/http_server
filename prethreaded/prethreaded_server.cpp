@@ -16,8 +16,9 @@ void handle_conn(int conn);
 void request_error(int conn, int code, const char* msg);
 void serve_static_file(int conn, std::string filename);
 
-int func(const HTTPRequest& req) {
-   return 15;
+void func(const HTTPRequest& req, HTTPResponse& resp) {
+	static int i = 12;
+	return i * i++;
 };
 
 void work(PrethreadedServer* server) {

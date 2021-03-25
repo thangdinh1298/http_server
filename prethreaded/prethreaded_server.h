@@ -14,7 +14,7 @@ extern "C" {
 
 class PrethreadedServer {
 public:
-   typedef int (*Task)(const HTTPRequest&);
+   typedef void (*Task)(const HTTPRequest&, HTTPResponse&);
 public:
    PrethreadedServer(unsigned thread_num=4, unsigned connection_buffer_len=100);
    void run() {
