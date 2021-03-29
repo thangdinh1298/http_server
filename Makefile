@@ -1,19 +1,26 @@
 FLAGS=
-all: server
+INCLUDE_DIR=.
+all: prethreaded_server.o io_helper.o main.o request.o utils.o server
 debug: FLAGS += -g
-debug: server
+debug: prethreaded_server io_helper main server
 
-server: io_helper thread_pool main
-	g++ ${FLAGS} -o server io_helper.o thread_pool.o main.o -lpthread
+utils.o: common/utils.h common/utils.cpp
+	g++ ${FLAGS} -I ${INCLUDE_DIR} -c common/utils.cpp
 
-io_helper: io_helper.c io_helper.h
-	gcc ${FLAGS} -c io_helper.c
+request.o: common/request.h common/request.cpp utils.o
+	g++ ${FLAGS} -I ${INCLUDE_DIR} -c common/request.cpp
 
-thread_pool: thread_pool.cpp thread_pool.h
-	g++ ${FLAGS} -c thread_pool.cpp
+prethreaded_server.o: prethreaded/prethreaded_server.h prethreaded/prethreaded_server.cpp prethreaded/conn_buffer.h io_helper.o
+	g++ ${FLAGS} -I ${INCLUDE_DIR} -c prethreaded/prethreaded_server.cpp
 
-main: main.cpp
-	g++ ${FLAGS} -c main.cpp
+io_helper.o: common/io_helper.c common/io_helper.h
+	gcc ${FLAGS} -I ${INCLUDE_DIR} -c common/io_helper.c
+
+main.o: main.cpp
+	g++ ${FLAGS} -I ${INCLUDE_DIR} -c main.cpp
+
+server: main.o io_helper.o prethreaded_server.o request.o
+	g++ ${FLAGS} -o server main.o io_helper.o prethreaded_server.o request.o utils.o -lpthread
 
 clean:
 	rm *.o server
