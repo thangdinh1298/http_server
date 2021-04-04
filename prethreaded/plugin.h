@@ -37,8 +37,11 @@ namespace Plugin {
       resp.set_header("Content-Length", std::to_string(length));
 
       char c;
-      while (f) {
+      while (true) {
          f.read(&c, sizeof(char));
+         if (!f) {
+            break;
+         }
          resp.write_to_body(&c, 1);
       }
    }

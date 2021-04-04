@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <unordered_map>
 
 enum class HTTPMethod {
    GET,
@@ -29,9 +30,14 @@ public:
    HTTPMethod method() const {
       return method_;
    }
-
+   void print_headers_map() const {
+      for (const auto it : headers_) {
+         std::cout << it.first << ": " << it.second << std::endl;
+      }
+   }
 private:
    HTTPMethod method_;
    std::string uri_;
    std::string version_;
+   std::unordered_map<std::string, std::string> headers_;
 };

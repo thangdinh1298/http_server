@@ -37,7 +37,8 @@ std::string readline_or_max(int sockfd, int len) {
             return line;
          }
       } else { // Error
-         return line; //TODO:throw
+//         return line; //TODO:throw
+         throw std::runtime_error("Error reading from socket");
       }
       i++;
    }

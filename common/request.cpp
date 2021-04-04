@@ -7,6 +7,18 @@
 #define MAX_REQUEST_LINE_SIZE 8196
 #define MAX_HEADERS_SIZE 8196
 
+void parse_header(const std::string& header_line, 
+                  std::unordered_map<std::string, std::string>& headers) {
+   auto delim_pos = header_line.find(':');
+   if (delim_pos == std::string::npos) {
+      std::cout << header_line << std::endl;
+      throw std::runtime_error("Ill-formed header");
+   }
+   auto key = header_line.substr(0, delim_pos);
+   auto value = header_line.substr(delim_pos + 1, header_line.size() - delim_pos + 1);
+   headers[key] = value;
+}
+
 HTTPRequest HTTPRequest::make_request(int sockfd) {
    std::string request_line = readline_or_max(sockfd, MAX_REQUEST_LINE_SIZE);
    if (request_line.find("\r\n") == std::string::npos) {
@@ -18,6 +30,23 @@ HTTPRequest HTTPRequest::make_request(int sockfd) {
    }
    HTTPRequest req = {get_method_from_str(tokens[0]), tokens[1], tokens[2]};
    std::cout << req.to_string() << std::endl;
+
+   unsigned bytes_read = 0;
+   std::string header_line = readline_or_max(sockfd, MAX_HEADERS_SIZE - bytes_read);
+   while (true) { //consider KMP here ?
+      if (header_line.back() != '\n') { //must have terminated by reaching byte limit
+         throw std::runtime_error("Headers exceeds 8kB");
+      } else { //terminated by reaching \n
+         if (header_line == "\r\n") {
+            break;
+         } else {
+            bytes_read += header_line.size() + 1;
+            parse_header(header_line, req.headers_);
+            header_line = readline_or_max(sockfd, MAX_HEADERS_SIZE - bytes_read);
+         }
+      }
+   }
+   req.print_headers_map();
    return req;
 }
 
