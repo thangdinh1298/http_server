@@ -5,7 +5,7 @@
 
 #define BUFLEN 8196
 #define MAX_REQUEST_LINE_SIZE 8196
-#define MAX_HEADERS_SIZE 8196
+#define MAX_HEADERS_SIZE 62
 
 void parse_header(const std::string& header_line, 
                   std::unordered_map<std::string, std::string>& headers) {
@@ -32,17 +32,17 @@ HTTPRequest HTTPRequest::make_request(int sockfd) {
    std::cout << req.to_string() << std::endl;
 
    unsigned bytes_read = 0;
-   std::string header_line = readline_or_max(sockfd, MAX_HEADERS_SIZE - bytes_read);
-   while (true) { //consider KMP here ?
+   std::string header_line;
+   while (MAX_HEADERS_SIZE > bytes_read) { //consider KMP here ?
+		header_line = readline_or_max(sockfd, MAX_HEADERS_SIZE - bytes_read);
+		bytes_read += header_line.size();
       if (header_line.back() != '\n') { //must have terminated by reaching byte limit
          throw std::runtime_error("Headers exceeds 8kB");
       } else { //terminated by reaching \n
          if (header_line == "\r\n") {
             break;
          } else {
-            bytes_read += header_line.size() + 1;
             parse_header(header_line, req.headers_);
-            header_line = readline_or_max(sockfd, MAX_HEADERS_SIZE - bytes_read);
          }
       }
    }
