@@ -5,7 +5,6 @@
 #include <fstream>
 
 #include "prethreaded_server.h"
-#include "plugin.h"
 extern "C" {
 #include "common/io_helper.h"
 }
@@ -18,8 +17,13 @@ void work(PrethreadedServer* server) {
       auto conn = server->get_conn();
       auto req = HTTPRequest::make_request(conn);
       auto resp = HTTPResponse(conn);
-      auto task = server->task();
-      task(req, resp);
+      try {
+         auto task = server->router().get_task(req.uri());
+		   task(req, resp);
+      } catch(const std::exception& e) {
+         std::cout << e.what() << std::endl;
+         continue;
+      }
    }
 }
 
@@ -29,5 +33,8 @@ PrethreadedServer::PrethreadedServer(unsigned thread_num, unsigned connection_bu
       std::thread t(work, this);
       thread_buffer_.push_back(std::move(t));
    }
-   task_ = &Plugin::serve_static_file;
+}
+
+void PrethreadedServer::add_task(Task t, const std::string& path) {
+	router_.add_task(t, path);
 }

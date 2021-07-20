@@ -37,7 +37,7 @@ HTTPRequest HTTPRequest::make_request(int sockfd) {
 		header_line = readline_or_max(sockfd, MAX_HEADERS_SIZE - bytes_read);
 		bytes_read += header_line.size();
       if (header_line.back() != '\n') { //must have terminated by reaching byte limit
-         throw std::runtime_error("Headers exceeds 8kB");
+         throw std::runtime_error("Headers exceeds 8kB abc");
       } else { //terminated by reaching \n
          if (header_line == "\r\n") {
             break;

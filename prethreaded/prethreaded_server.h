@@ -9,13 +9,12 @@
 #include "prethreaded/conn_buffer.h"
 #include "common/request.h"
 #include "common/response.h"
+#include "common/router.h"
 extern "C" {
    #include "common/io_helper.h"
 }
 
 class PrethreadedServer {
-public:
-   typedef void (*Task)(const HTTPRequest&, HTTPResponse&);
 public:
    PrethreadedServer(unsigned thread_num=4, unsigned connection_buffer_len=100);
    void run() {
@@ -27,14 +26,15 @@ public:
          conn_buffer_.push_conn(conn_fd);
       }
    }
-   Task task() const {
-      return task_;
-   }
    int get_conn() {
       return conn_buffer_.get_conn();
    }
+   void add_task(Task t, const std::string& path);
+	const Router& router() {
+		return router_;
+	}
 private:
    ConnectionBuffer conn_buffer_;
    std::vector<std::thread> thread_buffer_;
-   Task task_;
+   Router router_;
 };

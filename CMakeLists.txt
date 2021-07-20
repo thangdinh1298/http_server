@@ -11,7 +11,7 @@ target_link_libraries(request
 )
 
 add_library(io_helper common/io_helper.c)
-add_library(prethreaded_server prethreaded/prethreaded_server.cpp)
+add_library(prethreaded_server prethreaded/prethreaded_server.cpp common/router.cpp)
 target_link_libraries(prethreaded_server
 	PRIVATE io_helper request Threads::Threads
 )
