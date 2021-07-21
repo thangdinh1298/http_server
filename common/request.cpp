@@ -5,7 +5,7 @@
 
 #define BUFLEN 8196
 #define MAX_REQUEST_LINE_SIZE 8196
-#define MAX_HEADERS_SIZE 62
+#define MAX_HEADERS_SIZE 8196
 
 void parse_header(const std::string& header_line, 
                   std::unordered_map<std::string, std::string>& headers) {
@@ -46,7 +46,7 @@ HTTPRequest HTTPRequest::make_request(int sockfd) {
          }
       }
    }
-   req.print_headers_map();
+   //req.print_headers_map();
    return req;
 }
 
@@ -72,4 +72,45 @@ std::string get_str_from_method(HTTPMethod method) {
          return "INVALID";
       }
    }
+}
+
+static std::vector<std::string> split(const std::string& input, char delim) {
+   std::vector<std::string> tokens;
+   std::string token;
+   for (const auto c: input) {
+   	if (c == delim) {
+   		tokens.push_back(token);
+   		token.clear();
+   	} else {
+   		token += c;
+   	}
+   }
+   if (!token.empty()) {
+   	tokens.push_back(token);
+   }
+   return tokens;
+}
+
+void HTTPRequest::parse_params_and_path_from_uri() {
+   std::unordered_map<std::string, std::string> params;
+   auto delim_pos = uri_.find('?');
+   if (delim_pos == std::string::npos) {
+   	path_ = uri_;
+   	return;
+   }
+   path_ = uri_.substr(0, delim_pos);
+   
+   auto param_str = uri_.substr(delim_pos + 1);
+   auto pairs = split(param_str, '&');
+   
+   for (const auto& pair: pairs) {
+   	auto pos = pair.find("=");
+   	if (pos == std::string::npos) {
+   		continue;
+   	}
+   	auto key = pair.substr(0, pos);
+   	auto value = pair.substr(pos + 1);
+   	params[key] = value;
+   }
+   params_ = params;
 }

@@ -18,9 +18,7 @@ namespace Plugin {
 
    void serve_static_file(const HTTPRequest& req, HTTPResponse& resp) {
       resp.set_header("Content-Type", "text/plain; charset=utf-8");
-      std::string uri = req.uri();
-      std::string filename = (uri.size() == 1 && uri[0] == '/') ?\
-                             "index.html" : uri.substr(1, uri.size() - 1);
+      std::string filename = req.http_params().at("file");
 
       std::fstream f(filename, std::ios::binary | std::ios::in);
 

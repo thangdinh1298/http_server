@@ -14,15 +14,14 @@ const size_t MAXBUF = 8192;
 
 void work(PrethreadedServer* server) {
    while (true) {
-      auto conn = server->get_conn();
-      auto req = HTTPRequest::make_request(conn);
-      auto resp = HTTPResponse(conn);
       try {
-         auto task = server->router().get_task(req.uri());
+         auto conn = server->get_conn();
+         auto req = HTTPRequest::make_request(conn);
+         auto resp = HTTPResponse(conn);
+         auto task = server->router().get_task(req.path());
 		   task(req, resp);
       } catch(const std::exception& e) {
-         std::cout << e.what() << std::endl;
-         continue;
+         std::cout << "Error while serving request " << e.what() << std::endl;
       }
    }
 }
