@@ -5,17 +5,17 @@ Only works on linux
 
 # Compiling
 Compile using `cmake`. From the project's root dir, run
-```
+```bash
 mkdir build && cd build && cmake ../
 ```
 After configuration has been completed, simply run
-```
+```bash
 make
 ```
 
 # Usage
 Define your own handler. Full example in plugin.h
-```
+```cpp
    void serve_static_file(const HTTPRequest& req, HTTPResponse& resp) {
       resp.set_header("Content-Type", "text/plain; charset=utf-8");
       std::string filename = req.http_params().at("file");
@@ -46,7 +46,7 @@ Define your own handler. Full example in plugin.h
    }
 ```
 then plug it into the server before starting
-```
+```cpp
 int main() {
    PrethreadedServer server(4, 100);
    server.add_task(Plugin::func, "/get_num");
